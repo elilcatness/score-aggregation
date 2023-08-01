@@ -45,8 +45,9 @@ def main():
         writer.writeheader()
         with alive_bar(len(data), title=f'Запись в {output_filename}') as bar:
             for key, val in sorted(data.items(), key=lambda t: float(t[1]['Score']), reverse=True):
-                if delete_empty and any(sub_val for sub_val in val.values()):
-                    writer.writerow({'Query|Country': key, **val})
+                if delete_empty and not any(sub_val for sub_val in val.values()):
+                    continue
+                writer.writerow({'Query|Country': key, **val})
                 bar()
 
 
