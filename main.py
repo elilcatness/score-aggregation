@@ -43,12 +43,16 @@ def main():
     with open(output_filename, 'w', newline='', encoding='utf-8') as f:
         writer = DictWriter(f, ['Query|Country'] + data_fieldnames, delimiter=DELIMITER)
         writer.writeheader()
+        count = 0
         with alive_bar(len(data), title=f'Запись в {output_filename}') as bar:
             for key, val in sorted(data.items(), key=lambda t: float(t[1]['Score']), reverse=True):
-                if delete_empty and not any(sub_val for sub_val in val.values()):
-                    continue
-                writer.writerow({'Query|Country': key, **val})
+                if not delete_empty or any(val[sub_key] for sub_key in ('Volume', 'Difficulty')):
+                    writer.writerow({'Query|Country': key, **val})
+                    count += 1
                 bar()
+        print(f'Записано строк в {output_filename}: {count}')
+        if delete_empty:
+            print(f'Отсечено строк: {len(data) - count}')
 
 
 if __name__ == '__main__':
